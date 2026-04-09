@@ -1,0 +1,10 @@
+{
+  "short_name": "ParentPal",
+  "name": "ParentPal Smart Parenting Assistant",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#d8dfdf",
+  "theme_color": "#cf7448",
+  "description": "Plan child activities, weather checklists, and family routines.",
+  "icons": []
+}

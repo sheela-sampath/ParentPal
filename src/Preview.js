@@ -2,12 +2,14 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 const OUTDOOR_KEYWORDS = ["football", "soccer", "park", "outdoor", "cycling", "hiking", "training", "picnic"];
 
-function Preview({ draftActivity, onConfirm, onBack, onHome }) {
+function Preview({ draftActivity, onConfirm, onBack, onHome, weatherCity }) {
   const [name, setName] = useState(draftActivity.name || "");
   const [dateTime, setDateTime] = useState(draftActivity.dateTime || "");
   const [weather, setWeather] = useState(null);
   const [loadingWeather, setLoadingWeather] = useState(true);
   const [weatherError, setWeatherError] = useState("");
+  const [checklistText, setChecklistText] = useState("");
+  const [hasChecklistEdit, setHasChecklistEdit] = useState(false);
 
   const fetchWeather = useCallback(async () => {
     try {
@@ -19,7 +21,9 @@ function Preview({ draftActivity, onConfirm, onBack, onHome }) {
       }
 
       const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=Bergen,NO&appid=${apiKey}&units=metric`
+        `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(
+          weatherCity || "Bergen"
+        )}&appid=${apiKey}&units=metric`
       );
 
       if (!response.ok) {
@@ -39,7 +43,7 @@ function Preview({ draftActivity, onConfirm, onBack, onHome }) {
     } finally {
       setLoadingWeather(false);
     }
-  }, []);
+  }, [weatherCity]);
 
   useEffect(() => {
     fetchWeather();
@@ -82,11 +86,22 @@ function Preview({ draftActivity, onConfirm, onBack, onHome }) {
     return Array.from(new Set(list));
   }, [name, weather]);
 
+  useEffect(() => {
+    if (!hasChecklistEdit) {
+      setChecklistText(checklist.join(", "));
+    }
+  }, [checklist, hasChecklistEdit]);
+
   const handleConfirm = () => {
     if (!name || !dateTime) {
       alert("Please provide both activity name and date/time.");
       return;
     }
+
+    const finalChecklist = checklistText
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
 
     const saved = {
       id: Date.now(),
@@ -94,7 +109,7 @@ function Preview({ draftActivity, onConfirm, onBack, onHome }) {
       childName: draftActivity.childName,
       name,
       dateTime,
-      checklist,
+      checklist: finalChecklist.length > 0 ? finalChecklist : checklist,
       screenshotPreviewUrl: draftActivity.screenshotPreviewUrl || "",
       weatherSummary: weather
         ? `${weather.condition}, ${Math.round(weather.temperature)}°C`
@@ -148,7 +163,7 @@ function Preview({ draftActivity, onConfirm, onBack, onHome }) {
       />
 
       <div className="info-card">
-        <h3 className="section-title">Weather in Bergen, Norway</h3>
+        <h3 className="section-title">Weather in {weatherCity || "Bergen"}</h3>
         {loadingWeather && <p>Loading weather...</p>}
         {!loadingWeather && weather && (
           <p>
@@ -170,6 +185,18 @@ function Preview({ draftActivity, onConfirm, onBack, onHome }) {
             <li key={item}>{item}</li>
           ))}
         </ul>
+        <label className="label" htmlFor="editable-checklist">
+          Edit Checklist (comma separated)
+        </label>
+        <input
+          id="editable-checklist"
+          className="input-field"
+          value={checklistText}
+          onChange={(e) => {
+            setChecklistText(e.target.value);
+            setHasChecklistEdit(true);
+          }}
+        />
       </div>
 
       <div className="btn-row">

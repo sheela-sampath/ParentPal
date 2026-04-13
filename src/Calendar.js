@@ -63,45 +63,6 @@ function Calendar({
     });
   };
 
-  const exportCsv = () => {
-    const headers = ["Child", "Activity", "DateTime", "Weather", "Checklist", "CompletedCount"];
-    const rows = sortedActivities.map((activity) => [
-      activity.childName,
-      activity.name,
-      activity.dateTime,
-      activity.weatherSummary,
-      activity.checklist.join(" | "),
-      (activity.checkedItems || []).length
-    ]);
-    const csvContent = [headers, ...rows]
-      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
-      .join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "parentpal-schedule.csv";
-    link.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const exportPdf = () => {
-    const printable = sortedActivities
-      .map(
-        (activity) =>
-          `<h3>${activity.name}</h3><p><b>Child:</b> ${activity.childName}</p><p><b>Date:</b> ${new Date(
-            activity.dateTime
-          ).toLocaleString()}</p><p><b>Checklist:</b> ${activity.checklist.join(", ")}</p><hr/>`
-      )
-      .join("");
-    const printWindow = window.open("", "_blank", "width=900,height=700");
-    if (!printWindow) return;
-    printWindow.document.write(`<html><head><title>ParentPal Report</title></head><body>${printable}</body></html>`);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-  };
-
   return (
     <div>
       <p className="step-chip">Step 3 of 3 - Saved Activities</p>
@@ -223,12 +184,6 @@ function Calendar({
         </button>
         <button onClick={onHome} className="btn btn-secondary">
           Home
-        </button>
-        <button onClick={exportCsv} className="btn btn-secondary">
-          Export CSV
-        </button>
-        <button onClick={exportPdf} className="btn btn-secondary">
-          Export PDF
         </button>
       </div>
     </div>

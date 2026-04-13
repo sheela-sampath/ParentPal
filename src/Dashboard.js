@@ -5,13 +5,12 @@ function Dashboard({
   activities,
   onAddActivity,
   onViewCalendar,
-  onViewShare,
+  weatherCity,
   selectedChildId,
   children,
   onChangeChild,
   onAddChild,
-  onRenameChild,
-  onLoadDemoActivities
+  onRenameChild
 }) {
   const selectedChildName =
     children.find((child) => child.id === selectedChildId)?.name || "Selected child";
@@ -50,18 +49,22 @@ function Dashboard({
         <label className="label" htmlFor="dashboard-child-select">
           Viewing child
         </label>
-        <select
-          id="dashboard-child-select"
-          className="input-field"
-          value={selectedChildId}
-          onChange={(e) => onChangeChild(e.target.value)}
-        >
-          {children.map((child) => (
-            <option key={child.id} value={child.id}>
-              {child.name}
-            </option>
-          ))}
-        </select>
+        {children.length > 0 ? (
+          <select
+            id="dashboard-child-select"
+            className="input-field"
+            value={selectedChildId}
+            onChange={(e) => onChangeChild(e.target.value)}
+          >
+            {children.map((child) => (
+              <option key={child.id} value={child.id}>
+                {child.name}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <p className="meta-text">No child profile yet. Add a child to start planning activities.</p>
+        )}
         <div className="btn-row">
           <button type="button" className="btn btn-secondary btn-small" onClick={handleAddChildClick}>
             Add Child
@@ -74,6 +77,9 @@ function Dashboard({
 
       <div className="activity-card">
         <h3 className="section-title">Upcoming Activity for {selectedChildName}</h3>
+        <p className="meta-text">
+          <strong>Weather City:</strong> {weatherCity}
+        </p>
         {upcomingActivity ? (
           <div>
             <p className="meta-text">
@@ -111,17 +117,11 @@ function Dashboard({
       </div>
 
       <div className="btn-row">
-        <button onClick={onAddActivity} className="btn btn-primary">
+        <button onClick={onAddActivity} className="btn btn-primary" disabled={!selectedChildId}>
           Add Activity
         </button>
         <button onClick={onViewCalendar} className="btn btn-secondary">
           View Calendar
-        </button>
-        <button onClick={onLoadDemoActivities} className="btn btn-secondary">
-          Load Demo Activities
-        </button>
-        <button onClick={onViewShare} className="btn btn-secondary">
-          Share Page
         </button>
       </div>
     </div>

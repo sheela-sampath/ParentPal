@@ -3,28 +3,26 @@ import Dashboard from "./Dashboard";
 import Upload from "./Upload";
 import Preview from "./Preview";
 import Calendar from "./Calendar";
-import SharePage from "./SharePage";
 
 const ACTIVITIES_STORAGE_KEY = "parentpal_activities";
 const CHILDREN_STORAGE_KEY = "parentpal_children";
 const PARENT_NAME_STORAGE_KEY = "parentpal_parent_name";
-const DEFAULT_CHILDREN = [
-  { id: "kid-1", name: "Viyan" },
-  { id: "kid-2", name: "Tara" }
-];
+const WEATHER_CITY_STORAGE_KEY = "parentpal_weather_city";
 
 function App() {
   const [authScreen, setAuthScreen] = useState("home");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [parentName, setParentName] = useState("");
   const [parentNameInput, setParentNameInput] = useState("");
+  const [weatherCityInput, setWeatherCityInput] = useState("Bergen");
+  const [weatherCity, setWeatherCity] = useState("Bergen");
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
   const [screen, setScreen] = useState("dashboard");
   const [activities, setActivities] = useState([]);
   const [draftActivity, setDraftActivity] = useState(null);
-  const [children, setChildren] = useState(DEFAULT_CHILDREN);
-  const [selectedChildId, setSelectedChildId] = useState(DEFAULT_CHILDREN[0].id);
+  const [children, setChildren] = useState([]);
+  const [selectedChildId, setSelectedChildId] = useState("");
 
   useEffect(() => {
     try {
@@ -42,7 +40,8 @@ function App() {
       const parsed = JSON.parse(savedActivities);
       if (Array.isArray(parsed)) {
         // Backward compatibility for activities saved before multi-child support.
-        const fallbackChild = (savedChildren && JSON.parse(savedChildren)?.[0]) || DEFAULT_CHILDREN[0];
+        const parsedSavedChildren = savedChildren ? JSON.parse(savedChildren) : [];
+        const fallbackChild = parsedSavedChildren[0] || { id: "child-missing", name: "No child selected" };
         const normalized = parsed.map((activity) => ({
           ...activity,
           childId: activity.childId || fallbackChild.id,
@@ -57,6 +56,12 @@ function App() {
         setParentName(savedParentName);
         setParentNameInput(savedParentName);
         setIsLoggedIn(true);
+      }
+
+      const savedWeatherCity = localStorage.getItem(WEATHER_CITY_STORAGE_KEY);
+      if (savedWeatherCity) {
+        setWeatherCity(savedWeatherCity);
+        setWeatherCityInput(savedWeatherCity);
       }
     } catch (error) {
       console.error("Could not read saved app data:", error);
@@ -88,6 +93,16 @@ function App() {
       console.error("Could not save parent name:", error);
     }
   }, [parentName]);
+
+  useEffect(() => {
+    try {
+      if (weatherCity) {
+        localStorage.setItem(WEATHER_CITY_STORAGE_KEY, weatherCity);
+      }
+    } catch (error) {
+      console.error("Could not save weather city:", error);
+    }
+  }, [weatherCity]);
 
   useEffect(() => {
     if (!children.some((child) => child.id === selectedChildId)) {
@@ -186,8 +201,9 @@ function App() {
       return;
     }
     setParentName(trimmedName);
+    setWeatherCity(weatherCityInput.trim() || "Bergen");
     setIsLoggedIn(true);
-    setScreen("upload");
+    setScreen("dashboard");
   };
 
   const handleSignup = () => {
@@ -197,48 +213,14 @@ function App() {
       return;
     }
     setParentName(trimmedName);
+    setWeatherCity(weatherCityInput.trim() || "Bergen");
     setIsLoggedIn(true);
-    setScreen("upload");
+    setScreen("dashboard");
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
     setAuthScreen("home");
-  };
-
-  const handleGoToSharePage = () => setScreen("share");
-
-  const handleLoadDemoActivities = () => {
-    const now = Date.now();
-    const childA = children[0] || { id: "kid-1", name: "Viyan" };
-    const childB = children[1] || childA;
-    const demoActivities = [
-      {
-        id: now + 1,
-        childId: childA.id,
-        childName: childA.name,
-        name: "Football Training",
-        dateTime: new Date(now + 1000 * 60 * 60 * 24).toISOString().slice(0, 16),
-        checklist: ["Shoes", "Water Bottle", "Jacket"],
-        checkedItems: ["Shoes"],
-        screenshotPreviewUrl: "",
-        weatherSummary: "Clouds, 8°C"
-      },
-      {
-        id: now + 2,
-        childId: childB.id,
-        childName: childB.name,
-        name: "School Picnic",
-        dateTime: new Date(now + 1000 * 60 * 60 * 48).toISOString().slice(0, 16),
-        checklist: ["Comfortable Clothes", "Water Bottle", "Raincoat", "Umbrella"],
-        checkedItems: [],
-        screenshotPreviewUrl: "",
-        weatherSummary: "Rain, 11°C"
-      }
-    ];
-    setActivities(demoActivities);
-    setScreen("dashboard");
-    alert("Demo activities loaded.");
   };
 
   if (!isLoggedIn) {
@@ -262,7 +244,6 @@ function App() {
 
               <div className="auth-panel">
                 <h2 className="auth-panel-title">Let&apos;s get started</h2>
-                <p className="demo-badge">Demo Mode: no real account required</p>
                 <p className="auth-panel-subtitle">Track activities, checklists, and weather in one place.</p>
                 <div className="btn-row">
                   <button type="button" className="btn btn-primary auth-btn" onClick={() => setAuthScreen("signup")}>
@@ -287,8 +268,6 @@ function App() {
 
               <div className="auth-panel">
                 <h2 className="auth-panel-title">{isSignup ? "Sign Up" : "Login"}</h2>
-                <p className="demo-badge">Demo Mode: no real account required</p>
-
                 <label className="label" htmlFor="parent-name">
                   Name
                 </label>
@@ -322,6 +301,17 @@ function App() {
                   placeholder="******"
                   value={authPassword}
                   onChange={(e) => setAuthPassword(e.target.value)}
+                />
+
+                <label className="label" htmlFor="weather-city">
+                  Weather City
+                </label>
+                <input
+                  id="weather-city"
+                  className="input-field"
+                  placeholder="e.g. Oslo"
+                  value={weatherCityInput}
+                  onChange={(e) => setWeatherCityInput(e.target.value)}
                 />
 
                 <button
@@ -378,8 +368,7 @@ function App() {
             onViewCalendar={openCalendarScreen}
             onAddChild={handleAddChild}
             onRenameChild={handleRenameChild}
-            onLoadDemoActivities={handleLoadDemoActivities}
-            onViewShare={handleGoToSharePage}
+            weatherCity={weatherCity}
           />
         )}
 
@@ -399,6 +388,7 @@ function App() {
             onConfirm={handleConfirmActivity}
             onBack={() => setScreen("upload")}
             onHome={handleBackToDashboard}
+            weatherCity={weatherCity}
           />
         )}
 
@@ -414,13 +404,6 @@ function App() {
             onDeleteActivity={handleDeleteActivity}
             onToggleChecklistItem={handleToggleChecklistItem}
             onUpdateActivity={handleUpdateActivity}
-          />
-        )}
-
-        {screen === "share" && (
-          <SharePage
-            parentName={parentName}
-            onBack={handleBackToDashboard}
           />
         )}
       </div>

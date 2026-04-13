@@ -24,6 +24,10 @@ function Upload({ onNext, onBack, onHome, selectedChildId, children }) {
   };
 
   const handleNext = () => {
+    if (!childId) {
+      alert("Please add/select a child profile first from Dashboard.");
+      return;
+    }
     // Simulated screenshot extraction if user uploads an image.
     const simulatedName = "Football Training";
     const simulatedDateTime = new Date(Date.now() + 86400000)
@@ -56,18 +60,22 @@ function Upload({ onNext, onBack, onHome, selectedChildId, children }) {
       <label className="label" htmlFor="upload-child-select">
         Child Profile
       </label>
-      <select
-        id="upload-child-select"
-        className="input-field"
-        value={childId}
-        onChange={(e) => setChildId(e.target.value)}
-      >
-        {children.map((child) => (
-          <option key={child.id} value={child.id}>
-            {child.name}
-          </option>
-        ))}
-      </select>
+      {children.length > 0 ? (
+        <select
+          id="upload-child-select"
+          className="input-field"
+          value={childId}
+          onChange={(e) => setChildId(e.target.value)}
+        >
+          {children.map((child) => (
+            <option key={child.id} value={child.id}>
+              {child.name}
+            </option>
+          ))}
+        </select>
+      ) : (
+        <p className="meta-text">No child profiles found. Go Home and add a child first.</p>
+      )}
 
       <label className="label">Upload Screenshot</label>
       <input type="file" accept="image/*" onChange={handleFileChange} className="input-field" />

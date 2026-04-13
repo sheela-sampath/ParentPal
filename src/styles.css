@@ -248,6 +248,11 @@ body {
   transition: transform 0.15s ease, opacity 0.2s ease;
 }
 
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .btn:hover {
   transform: translateY(-1px);
   opacity: 0.95;
@@ -353,6 +358,25 @@ select:focus-visible {
 .checked-text {
   text-decoration: line-through;
   color: #475569;
+}
+
+.hint-text {
+  margin-top: 0.4rem;
+  color: #7c2d12;
+  font-weight: 600;
+}
+
+.more-options {
+  margin-top: 0.8rem;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  padding: 0.45rem 0.7rem;
+}
+
+.more-options summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #7f3d1f;
 }
 
 .stats-grid {

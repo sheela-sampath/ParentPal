@@ -124,9 +124,9 @@ function Preview({ draftActivity, onConfirm, onBack, onHome, weatherCity }) {
   return (
     <div>
       <p className="step-chip">Step 2 of 3 - Preview & Checklist</p>
-      <h2 className="section-title">Preview Screen</h2>
+      <h2 className="section-title">Check</h2>
       <p className="section-subtitle">
-        Confirm activity details and generated checklist before saving.
+        Check details before saving.
       </p>
       <div className="info-card">
         <p className="meta-text">
@@ -170,7 +170,12 @@ function Preview({ draftActivity, onConfirm, onBack, onHome, weatherCity }) {
             {weather.condition} ({weather.description}), {Math.round(weather.temperature)}°C
           </p>
         )}
-        {!loadingWeather && weatherError && <p className="weather-error">{weatherError}</p>}
+        {!loadingWeather && weather && weather.condition.toLowerCase().includes("rain") && (
+          <p className="hint-text">🌧 Rain today - take raincoat.</p>
+        )}
+        {!loadingWeather && weatherError && (
+          <p className="hint-text">☁ Weather not available now, using normal list.</p>
+        )}
         {!loadingWeather && weatherError && (
           <button type="button" className="btn btn-secondary btn-small" onClick={fetchWeather}>
             Retry Weather
@@ -179,7 +184,7 @@ function Preview({ draftActivity, onConfirm, onBack, onHome, weatherCity }) {
       </div>
 
       <div className="info-card">
-        <h3 className="section-title">Generated Checklist</h3>
+        <h3 className="section-title">Things to Carry</h3>
         <ul className="checklist">
           {checklist.map((item) => (
             <li key={item}>{item}</li>
@@ -201,15 +206,20 @@ function Preview({ draftActivity, onConfirm, onBack, onHome, weatherCity }) {
 
       <div className="btn-row">
         <button onClick={handleConfirm} className="btn btn-primary">
-          Save Activity
-        </button>
-        <button onClick={onBack} className="btn btn-secondary">
-          Edit Details
+          Next
         </button>
         <button onClick={onHome} className="btn btn-secondary">
           Home
         </button>
       </div>
+      <details className="more-options">
+        <summary>More options</summary>
+        <div className="btn-row">
+          <button onClick={onBack} className="btn btn-secondary">
+            Edit Details
+          </button>
+        </div>
+      </details>
     </div>
   );
 }

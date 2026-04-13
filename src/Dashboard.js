@@ -44,7 +44,8 @@ function Dashboard({
 
   return (
     <div>
-      <h2 className="section-title">Dashboard</h2>
+      <h2 className="section-title">Home</h2>
+      <p className="section-subtitle">Start here. Add child, then add activity.</p>
       <div className="filter-row">
         <label className="label" htmlFor="dashboard-child-select">
           Viewing child
@@ -118,12 +119,17 @@ function Dashboard({
 
       <div className="btn-row">
         <button onClick={onAddActivity} className="btn btn-primary" disabled={!selectedChildId}>
-          Add Activity
-        </button>
-        <button onClick={onViewCalendar} className="btn btn-secondary">
-          View Calendar
+          Next
         </button>
       </div>
+      <details className="more-options">
+        <summary>More options</summary>
+        <div className="btn-row">
+          <button onClick={onViewCalendar} className="btn btn-secondary">
+            Done List
+          </button>
+        </div>
+      </details>
     </div>
   );
 }

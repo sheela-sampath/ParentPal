@@ -66,9 +66,9 @@ function Calendar({
   return (
     <div>
       <p className="step-chip">Step 3 of 3 - Saved Activities</p>
-      <h2 className="section-title">Calendar Screen</h2>
+      <h2 className="section-title">Done</h2>
       <p className="section-subtitle">
-        All saved activities with their weather-smart checklists.
+        Saved activities and things to carry.
       </p>
       <div className="tabs-row">
         {children.map((child) => (
@@ -81,26 +81,6 @@ function Calendar({
           </button>
         ))}
       </div>
-      <div className="filters-grid">
-        <input
-          type="text"
-          className="input-field"
-          placeholder="Search activity name..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-        <select
-          className="input-field"
-          value={dateFilter}
-          onChange={(e) => setDateFilter(e.target.value)}
-        >
-          <option value="all">All dates</option>
-          <option value="today">Today</option>
-          <option value="upcoming">Upcoming</option>
-          <option value="past">Past</option>
-        </select>
-      </div>
-
       {sortedActivities.length === 0 ? (
         <p>No matching activities for this child.</p>
       ) : (
@@ -156,36 +136,60 @@ function Calendar({
               {(activity.checkedItems || []).length}/{activity.checklist.length} completed
             </p>
             <div className="btn-row">
-              <button
-                type="button"
-                className="btn btn-secondary btn-small"
-                onClick={() => handleEditActivity(activity)}
-              >
-                Edit Activity
-              </button>
-              <button
-                type="button"
-                className="btn btn-danger btn-small"
-                onClick={() => onDeleteActivity(activity.id)}
-              >
-                Delete Activity
-              </button>
+              <details className="more-options">
+                <summary>More options</summary>
+                <div className="btn-row">
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-small"
+                    onClick={() => handleEditActivity(activity)}
+                  >
+                    Edit Activity
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-danger btn-small"
+                    onClick={() => onDeleteActivity(activity.id)}
+                  >
+                    Delete Activity
+                  </button>
+                </div>
+              </details>
             </div>
           </div>
         ))
       )}
 
       <div className="btn-row">
-        <button onClick={onAddActivity} className="btn btn-primary">
-          Add Another Activity
-        </button>
-        <button onClick={onBack} className="btn btn-secondary">
-          Go to Dashboard
-        </button>
-        <button onClick={onHome} className="btn btn-secondary">
+        <button onClick={onHome} className="btn btn-primary">
           Home
         </button>
+        <button onClick={onAddActivity} className="btn btn-secondary">
+          Add One More
+        </button>
       </div>
+      <details className="more-options">
+        <summary>More options</summary>
+        <div className="filters-grid">
+          <input
+            type="text"
+            className="input-field"
+            placeholder="Search activity"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <select
+            className="input-field"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          >
+            <option value="all">All dates</option>
+            <option value="today">Today</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="past">Past</option>
+          </select>
+        </div>
+      </details>
     </div>
   );
 }

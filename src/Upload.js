@@ -7,6 +7,7 @@ function Upload({ onNext, onBack, onHome, selectedChildId, children }) {
   const [previewUrl, setPreviewUrl] = useState("");
   const [childId, setChildId] = useState(selectedChildId);
   const [activityType, setActivityType] = useState("custom");
+  const [suggestedItems, setSuggestedItems] = useState([]);
 
   const applyTemplate = (type) => {
     setActivityType(type);
@@ -14,6 +15,14 @@ function Upload({ onNext, onBack, onHome, selectedChildId, children }) {
     if (type === "picnic") setName("School Picnic");
     if (type === "swimming") setName("Swimming Class");
     if (type === "custom") setName("");
+  };
+
+  const suggestItems = (activityName) => {
+    const value = activityName.toLowerCase();
+    if (value.includes("football")) return ["Shoes", "Water Bottle"];
+    if (value.includes("picnic")) return ["Snacks", "Mat", "Water Bottle"];
+    if (value.includes("swimming")) return ["Swimwear", "Towel", "Water Bottle"];
+    return ["Comfortable Clothes", "Water Bottle"];
   };
 
   const handleFileChange = (event) => {
@@ -53,9 +62,9 @@ function Upload({ onNext, onBack, onHome, selectedChildId, children }) {
   return (
     <div>
       <p className="step-chip">Step 1 of 3 - Add Details</p>
-      <h2 className="section-title">Upload Screen</h2>
+      <h2 className="section-title">Add Activity</h2>
       <p className="section-subtitle">
-        Upload an activity screenshot or type the activity details manually.
+        Add photo or type details. Keep it simple.
       </p>
       <label className="label" htmlFor="upload-child-select">
         Child Profile
@@ -81,7 +90,7 @@ function Upload({ onNext, onBack, onHome, selectedChildId, children }) {
       <input type="file" accept="image/*" onChange={handleFileChange} className="input-field" />
 
       <label className="label" htmlFor="activity-template-select">
-        Checklist Template
+        Things to Carry Style
       </label>
       <select
         id="activity-template-select"
@@ -110,10 +119,19 @@ function Upload({ onNext, onBack, onHome, selectedChildId, children }) {
       <input
         type="text"
         value={name}
-        onChange={(e) => setName(e.target.value)}
+        onChange={(e) => {
+          setName(e.target.value);
+          setSuggestedItems(suggestItems(e.target.value));
+        }}
         placeholder="e.g. Football Training"
         className="input-field"
       />
+      {name && (
+        <div className="info-card">
+          <p className="meta-text"><strong>💡 Things to Carry Suggestion:</strong></p>
+          <p className="meta-text">{suggestedItems.join(", ")}</p>
+        </div>
+      )}
 
       <label className="label">Date and Time</label>
       <input
@@ -127,13 +145,18 @@ function Upload({ onNext, onBack, onHome, selectedChildId, children }) {
         <button onClick={handleNext} className="btn btn-primary">
           Next
         </button>
-        <button onClick={onBack} className="btn btn-secondary">
-          Cancel
-        </button>
         <button onClick={onHome} className="btn btn-secondary">
           Home
         </button>
       </div>
+      <details className="more-options">
+        <summary>More options</summary>
+        <div className="btn-row">
+          <button onClick={onBack} className="btn btn-secondary">
+            Cancel
+          </button>
+        </div>
+      </details>
     </div>
   );
 }
